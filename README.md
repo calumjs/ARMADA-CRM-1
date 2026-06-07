@@ -24,15 +24,15 @@ that watch GitHub issues and drive them to merge-ready PRs.
 
 ## Vocabulary
 
-| Term         | Means              |
-| ------------ | ------------------ |
-| Port         | Company / account  |
-| Captain      | Contact            |
-| Voyage       | Deal / opportunity |
-| The Bridge   | Dashboard          |
-| The Chart    | Deal pipeline map  |
-| The Helm     | Navigation rail    |
-| The Log      | Activity timeline  |
+| Term       | Means              |
+| ---------- | ------------------ |
+| Port       | Company / account  |
+| Captain    | Contact            |
+| Voyage     | Deal / opportunity |
+| The Bridge | Dashboard          |
+| The Chart  | Deal pipeline map  |
+| The Helm   | Navigation rail    |
+| The Log    | Activity timeline  |
 
 A **Voyage** moves through stages: `CHARTED → PROVISIONED → UNDERWAY → BOARDING
 → ANCHORED` (won) or `WRECKED` (lost).
@@ -66,18 +66,36 @@ npm run dev                 # http://localhost:3000
 Visit `/styleguide` to see the ARMADA design system — palette, type scale, and
 core components in both light and dark mode.
 
+### The Navigator (AI co-pilot) — optional
+
+The **Navigator** is an optional AI co-pilot (deal-health "tides", next-best
+actions, drafted follow-ups). It's entirely optional: **the app runs fully
+without it**, showing a clear "no key" message wherever live AI would appear.
+
+To enable live AI, set the Vercel AI Gateway key in your `.env`:
+
+```bash
+AI_GATEWAY_API_KEY="your-ai-gateway-key-here"
+```
+
+When deployed on Vercel the platform-injected `VERCEL_OIDC_TOKEN` works as an
+alternative credential, so no key needs to be set by hand there. The model can
+be overridden with `NAVIGATOR_MODEL` (a plain AI Gateway `provider/model`
+string; defaults to `anthropic/claude-sonnet-4.5`). See `.env.example` for all
+Navigator variables.
+
 ## Scripts
 
-| Script               | Does                                                   |
-| -------------------- | ------------------------------------------------------ |
-| `npm run dev`        | Start the Next.js dev server                           |
-| `npm run build`      | Generate the Prisma client and build for production    |
-| `npm run start`      | Serve the production build                             |
-| `npm run lint`       | Lint with ESLint (`next lint`)                         |
-| `npm test`           | Run the Vitest suite                                    |
-| `npm run format`     | Format the codebase with Prettier                      |
-| `npm run db:migrate` | Apply Prisma migrations (`prisma migrate dev`)         |
-| `npm run db:seed`    | Seed the database with demo data                       |
+| Script               | Does                                                |
+| -------------------- | --------------------------------------------------- |
+| `npm run dev`        | Start the Next.js dev server                        |
+| `npm run build`      | Generate the Prisma client and build for production |
+| `npm run start`      | Serve the production build                          |
+| `npm run lint`       | Lint with ESLint (`next lint`)                      |
+| `npm test`           | Run the Vitest suite                                |
+| `npm run format`     | Format the codebase with Prettier                   |
+| `npm run db:migrate` | Apply Prisma migrations (`prisma migrate dev`)      |
+| `npm run db:seed`    | Seed the database with demo data                    |
 
 ## Project layout
 
