@@ -9,7 +9,7 @@
   "mergeMethod": "squash",
   "maxReviewRounds": 2,
   "maxConcurrentBuilds": 5,
-  "maxConcurrentReviews": 2,
+  "maxConcurrentReviews": 5,
   "armadaRepo": "calumjs/ARMADA",
   "autoArmSelfFixes": false,
   "cartography": "on",
