@@ -110,6 +110,16 @@ export function VoyageBoard({
   // Parse the server-pinned instant once; reused for every card's health/tides.
   const nowDate = React.useMemo(() => new Date(now), [now]);
 
+  // A hydration-stable id for the DnD context. @dnd-kit derives the draggable
+  // handles' `aria-describedby` (`DndDescribedBy-<n>`) from this id via its own
+  // module-level counter when no id is supplied — and that counter is seeded
+  // independently on the server and the client, so the two renders emit
+  // *different* describedby ids and React logs a hydration mismatch. React's
+  // `useId()` is deterministic across the server render and the client
+  // hydration, so feeding it to `DndContext.id` pins the describedby and the
+  // board hydrates cleanly. See issue #18.
+  const dndId = React.useId();
+
   const [createStage, setCreateStage] = React.useState<VoyageStage | null>(
     null,
   );
@@ -180,6 +190,7 @@ export function VoyageBoard({
       </div>
 
       <DndContext
+        id={dndId}
         sensors={sensors}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
