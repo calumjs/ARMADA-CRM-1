@@ -1,0 +1,131 @@
+// ARMADA CRM — Prisma schema
+// Vocabulary: Ports = companies, Captains = contacts, Voyages = deals,
+// Activities = log/task entries. SQLite for v1, swappable via DATABASE_URL.
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+/// The stage a Voyage (deal) sits at on the Chart.
+enum VoyageStage {
+  CHARTED
+  PROVISIONED
+  UNDERWAY
+  BOARDING
+  ANCHORED
+  WRECKED
+}
+
+/// The kind of Activity logged against the fleet.
+enum ActivityType {
+  NOTE
+  CALL
+  EMAIL
+  MEETING
+  TASK
+}
+
+/// A Port — a company / account the fleet trades with.
+model Port {
+  id        String    @id @default(cuid())
+  name      String
+  /// Industry or trade the port deals in.
+  industry  String?
+  website   String?
+  /// Free-text home waters / location.
+  location  String?
+  notes     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  captains   Captain[]
+  voyages    Voyage[]
+  activities Activity[]
+
+  @@index([name])
+}
+
+/// A Captain — a contact who sails for a Port.
+model Captain {
+  id        String   @id @default(cuid())
+  firstName String
+  lastName  String
+  email     String?  @unique
+  phone     String?
+  /// Their rank / title aboard the port.
+  title     String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  port   Port?   @relation(fields: [portId], references: [id], onDelete: SetNull)
+  portId String?
+
+  voyages    Voyage[]
+  activities Activity[]
+
+  @@index([portId])
+  @@index([lastName])
+}
+
+/// A Voyage — a deal in flight, charted through the stages.
+model Voyage {
+  id            String      @id @default(cuid())
+  name          String
+  stage         VoyageStage @default(CHARTED)
+  /// Expected value of the voyage, in whole currency units.
+  value         Int         @default(0)
+  /// 0-100 chance of reaching ANCHORED.
+  probability   Int         @default(0)
+  expectedClose DateTime?
+  closedAt      DateTime?
+  notes         String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  port   Port?   @relation(fields: [portId], references: [id], onDelete: SetNull)
+  portId String?
+
+  captain   Captain? @relation(fields: [captainId], references: [id], onDelete: SetNull)
+  captainId String?
+
+  activities Activity[]
+
+  @@index([stage])
+  @@index([portId])
+  @@index([captainId])
+}
+
+/// An Activity — an entry in The Log against a port, captain, or voyage.
+model Activity {
+  id        String       @id @default(cuid())
+  type      ActivityType @default(NOTE)
+  subject   String
+  body      String?
+  /// When the activity happened or is due.
+  occurredAt DateTime    @default(now())
+  /// Tasks can be marked done; notes/calls are inherently complete.
+  done      Boolean      @default(false)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  port   Port?   @relation(fields: [portId], references: [id], onDelete: Cascade)
+  portId String?
+
+  captain   Captain? @relation(fields: [captainId], references: [id], onDelete: Cascade)
+  captainId String?
+
+  voyage   Voyage? @relation(fields: [voyageId], references: [id], onDelete: Cascade)
+  voyageId String?
+
+  @@index([type])
+  @@index([occurredAt])
+  @@index([portId])
+  @@index([captainId])
+  @@index([voyageId])
+}

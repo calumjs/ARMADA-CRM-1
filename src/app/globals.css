@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * ARMADA nautical design system.
+ * Palette: deep-sea navy, brass/gold, parchment, signal-flag accents.
+ * Light/dark via CSS variables consumed by the Tailwind theme.
+ * All colours expressed as HSL channel triplets (no hsl() wrapper) so they
+ * compose with Tailwind's `hsl(var(--token) / <alpha>)` opacity syntax.
+ */
+
+@layer base {
+  :root {
+    /* Parchment-toned light mode */
+    --background: 40 38% 96%;
+    --foreground: 211 45% 14%;
+
+    --card: 40 40% 99%;
+    --card-foreground: 211 45% 14%;
+
+    --popover: 40 40% 99%;
+    --popover-foreground: 211 45% 14%;
+
+    /* Deep-sea navy as the primary */
+    --primary: 211 58% 20%;
+    --primary-foreground: 40 38% 96%;
+
+    --secondary: 205 28% 88%;
+    --secondary-foreground: 211 45% 18%;
+
+    --muted: 40 24% 90%;
+    --muted-foreground: 211 18% 38%;
+
+    /* Brass/gold as the accent */
+    --accent: 41 54% 52%;
+    --accent-foreground: 211 45% 14%;
+
+    --destructive: 4 66% 44%;
+    --destructive-foreground: 40 38% 96%;
+
+    --border: 40 20% 82%;
+    --input: 40 20% 82%;
+    --ring: 41 54% 52%;
+
+    --radius: 0.5rem;
+
+    /* Named nautical tokens */
+    --navy: 211 58% 20%;
+    --navy-foreground: 40 38% 96%;
+    --brass: 41 54% 47%;
+    --brass-foreground: 211 50% 12%;
+    --parchment: 40 38% 92%;
+    --parchment-foreground: 211 45% 14%;
+
+    /* Signal-flag accent palette */
+    --signal-red: 4 72% 48%;
+    --signal-yellow: 44 92% 52%;
+    --signal-blue: 205 70% 42%;
+    --signal-green: 150 52% 36%;
+    --signal-white: 0 0% 98%;
+
+    /* Type families (set on <html> via next/font variables) */
+    --font-sans: var(--font-inter, ui-sans-serif);
+    --font-display: var(--font-display-serif, ui-serif);
+    --font-mono: var(--font-mono-code, ui-monospace);
+  }
+
+  .dark {
+    /* Deep-sea night */
+    --background: 211 52% 9%;
+    --foreground: 40 34% 92%;
+
+    --card: 211 48% 12%;
+    --card-foreground: 40 34% 92%;
+
+    --popover: 211 48% 12%;
+    --popover-foreground: 40 34% 92%;
+
+    --primary: 41 54% 56%;
+    --primary-foreground: 211 52% 9%;
+
+    --secondary: 211 36% 18%;
+    --secondary-foreground: 40 34% 92%;
+
+    --muted: 211 34% 16%;
+    --muted-foreground: 205 18% 64%;
+
+    --accent: 41 54% 52%;
+    --accent-foreground: 211 52% 9%;
+
+    --destructive: 4 60% 50%;
+    --destructive-foreground: 40 34% 92%;
+
+    --border: 211 30% 22%;
+    --input: 211 30% 22%;
+    --ring: 41 54% 52%;
+
+    --navy: 211 58% 20%;
+    --navy-foreground: 40 38% 96%;
+    --brass: 41 54% 56%;
+    --brass-foreground: 211 52% 9%;
+    --parchment: 40 18% 24%;
+    --parchment-foreground: 40 34% 92%;
+
+    --signal-red: 4 72% 56%;
+    --signal-yellow: 44 92% 58%;
+    --signal-blue: 205 70% 56%;
+    --signal-green: 150 48% 46%;
+    --signal-white: 0 0% 98%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
+  }
+}
