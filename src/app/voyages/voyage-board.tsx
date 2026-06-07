@@ -51,6 +51,7 @@ import {
   voyageHealth,
   type VoyageStage,
 } from "@/lib/voyage";
+import { tidesScore } from "@/lib/navigator";
 import { deleteVoyage, updateVoyageStage } from "./actions";
 import {
   VoyageDialog,
@@ -406,6 +407,7 @@ function Card({
   overlay?: boolean;
 }) {
   const health = voyageHealth(voyage);
+  const tides = tidesScore(voyage);
 
   return (
     <article
@@ -459,9 +461,24 @@ function Card({
         ) : null}
       </div>
 
-      <p className="mt-2 font-mono text-sm font-medium">
-        {formatValue(voyage.value)}
-      </p>
+      <div className="mt-2 flex items-center justify-between gap-2">
+        <p className="font-mono text-sm font-medium">
+          {formatValue(voyage.value)}
+        </p>
+        <span
+          className="text-xs font-semibold tabular-nums text-muted-foreground"
+          title={`Reading the tides: ${tides.rationale}`}
+        >
+          <span
+            aria-hidden
+            className={cn(
+              "mr-1 inline-block h-1.5 w-1.5 rounded-full align-middle",
+              HEALTH_DOT[tides.accent],
+            )}
+          />
+          {tides.score}
+        </span>
+      </div>
 
       <dl className="mt-2 space-y-1 text-xs text-muted-foreground">
         {voyage.portName ? (
