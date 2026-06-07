@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { prisma } from "@/lib/db";
+import { toTimelineActivity } from "@/lib/activity";
 import { type VoyageStage } from "@/lib/voyage";
 import { CaptainsTable, type CaptainRow } from "./captains-table";
 import type { PortOption } from "./captain-dialog";
@@ -25,6 +26,12 @@ async function loadCaptains(): Promise<{
           voyages: {
             orderBy: { updatedAt: "desc" },
             select: { id: true, name: true, stage: true, value: true },
+          },
+          activities: {
+            orderBy: { occurredAt: "desc" },
+            include: {
+              captain: { select: { firstName: true, lastName: true } },
+            },
           },
         },
       }),
@@ -53,6 +60,7 @@ async function loadCaptains(): Promise<{
           stage: v.stage as VoyageStage,
           value: v.value,
         })),
+        activities: c.activities.map(toTimelineActivity),
       })),
     };
   } catch {

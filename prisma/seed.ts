@@ -202,13 +202,20 @@ async function main() {
     for (let j = 0; j < n; j++) {
       const idx = i + j;
       const type = pick(ACTIVITY_TYPES, idx);
+      const isTask = type === "TASK";
+      const done = isTask ? idx % 2 === 0 : true;
+      // Spread task due dates around today so the Orders board shows a mix of
+      // upcoming and overdue (negative = in the past).
+      const dueAt = isTask ? daysFromNow((idx % 7) - 3) : null;
       await prisma.activity.create({
         data: {
           type,
           subject: pick(ACTIVITY_SUBJECTS, idx),
           body: `Logged against ${voyage.name}.`,
-          occurredAt: daysFromNow(-(idx % 30)),
-          done: type === "TASK" ? idx % 2 === 0 : true,
+          occurredAt: isTask && dueAt ? dueAt : daysFromNow(-(idx % 30)),
+          done,
+          dueAt,
+          completedAt: done && isTask ? daysFromNow(-(idx % 5)) : null,
           voyageId: voyage.id,
           portId: voyage.portId,
           captainId: voyage.captainId,

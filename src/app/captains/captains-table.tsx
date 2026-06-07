@@ -56,6 +56,8 @@ import {
   type SortDirection,
 } from "@/lib/ports";
 import { stageMeta, type VoyageStage } from "@/lib/voyage";
+import { ActivityLogSection } from "@/app/log/activity-log-section";
+import type { TimelineActivity } from "@/app/log/activity-timeline";
 import { deleteCaptain } from "@/app/ports/actions";
 import {
   CaptainDialog,
@@ -89,6 +91,7 @@ export interface CaptainRow {
   portId: string | null;
   portName: string | null;
   voyages: CaptainVoyage[];
+  activities: TimelineActivity[];
 }
 
 const COLUMNS: { key: CaptainSortKey; label: string }[] = [
@@ -404,6 +407,14 @@ export function CaptainsTable({
                     </ul>
                   )}
                 </section>
+
+                <ActivityLogSection
+                  target="captain"
+                  targetId={selected.id}
+                  title="Captain's Log"
+                  description="Notes, calls, and tasks for this captain — newest first."
+                  activities={selected.activities}
+                />
               </div>
 
               <SheetFooter className="mt-8">

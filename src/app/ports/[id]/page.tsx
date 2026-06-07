@@ -29,7 +29,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { prisma } from "@/lib/db";
-import { ACTIVITY_LABEL, formatWhen, type ActivityType } from "@/lib/activity";
+import { toTimelineActivity } from "@/lib/activity";
+import { ActivityLogSection } from "@/app/log/activity-log-section";
 import { captainInitials, captainName } from "@/lib/ports";
 import { formatValue, stageMeta, type VoyageStage } from "@/lib/voyage";
 import { PortDetailActions } from "./port-detail-actions";
@@ -53,7 +54,6 @@ async function loadPort(id: string) {
         voyages: { orderBy: { updatedAt: "desc" }, include: { captain: true } },
         activities: {
           orderBy: { occurredAt: "desc" },
-          take: 8,
           include: { captain: true },
         },
       },
@@ -251,47 +251,14 @@ export default async function PortDetailPage({
         </Card>
       </div>
 
-      {/* Recent activity */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-xl">Recent activity</CardTitle>
-          <CardDescription>
-            The latest entries logged against this port.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {port.activities.length === 0 ? (
-            <EmptyState
-              icon={ScrollText}
-              title="Nothing logged yet"
-              description="Calls, emails, and notes against this port will show here."
-              className="py-10"
-            />
-          ) : (
-            <ul className="space-y-4">
-              {port.activities.map((a) => (
-                <li key={a.id} className="flex gap-3">
-                  <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary text-brass">
-                    <ScrollText className="h-4 w-4" />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium">{a.subject}</p>
-                      <Badge variant="outline" className="text-[10px]">
-                        {ACTIVITY_LABEL[a.type as ActivityType]}
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {formatWhen(a.occurredAt)}
-                      {a.captain ? ` · ${captainName(a.captain)}` : ""}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
+      {/* Captain's Log — quick-add composer over a reverse-chron timeline */}
+      <ActivityLogSection
+        target="port"
+        targetId={port.id}
+        title="Captain's Log"
+        description="Notes, calls, and tasks logged against this port — newest first."
+        activities={port.activities.map(toTimelineActivity)}
+      />
     </div>
   );
 }
