@@ -36,6 +36,13 @@ import {
   voyageHealth,
   type VoyageStage,
 } from "@/lib/voyage";
+import {
+  hasGatewayKey,
+  nextBestAction,
+  tidesScore,
+  type VoyageSnapshot,
+} from "@/lib/navigator";
+import { NavigatorPanel } from "@/components/navigator-panel";
 import { VoyageDetailActions } from "./voyage-detail-actions";
 
 export const dynamic = "force-dynamic";
@@ -98,6 +105,24 @@ export default async function VoyageDetailPage({
     stage,
     expectedClose: voyage.expectedClose,
   });
+
+  // Navigator (AI co-pilot) context — computed server-side, Prisma-free helpers.
+  const navigatorVoyage: VoyageSnapshot = {
+    name: voyage.name,
+    stage,
+    value: voyage.value,
+    expectedClose: voyage.expectedClose,
+    portName: voyage.port?.name ?? null,
+    captainName: voyage.captain ? captainName(voyage.captain) : null,
+    notes: voyage.notes,
+    activities: voyage.activities.map((a) => ({
+      type: a.type,
+      subject: a.subject,
+      occurredAt: a.occurredAt,
+    })),
+  };
+  const tides = tidesScore(navigatorVoyage);
+  const nextAction = nextBestAction(navigatorVoyage);
 
   return (
     <div className="space-y-6">
@@ -212,6 +237,13 @@ export default async function VoyageDetailPage({
           </CardContent>
         </Card>
       </div>
+
+      <NavigatorPanel
+        voyageId={voyage.id}
+        tides={tides}
+        nextAction={nextAction}
+        configured={hasGatewayKey()}
+      />
 
       {voyage.notes ? (
         <Card>
