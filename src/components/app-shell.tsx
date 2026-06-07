@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Menu, Palette } from "lucide-react";
+import { Menu, Palette, Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -11,6 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { CommandPalette, openHelm } from "@/components/command-palette";
 import { HelmNav } from "@/components/helm-nav";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Wordmark } from "@/components/wordmark";
@@ -45,6 +46,29 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </Link>
 
         <div className="ml-auto flex items-center gap-1">
+          {/* The Helm: ⌘K command palette trigger. */}
+          <button
+            type="button"
+            onClick={() => openHelm()}
+            aria-label="Open The Helm command palette"
+            aria-keyshortcuts="Meta+K Control+K"
+            className="hidden items-center gap-2 rounded-md border border-input bg-background/60 px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-secondary-foreground sm:flex"
+          >
+            <Search className="h-4 w-4" />
+            <span>Search the fleet…</span>
+            <kbd className="ml-2 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium tracking-wider text-muted-foreground">
+              ⌘K
+            </kbd>
+          </button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="sm:hidden"
+            aria-label="Open The Helm command palette"
+            onClick={() => openHelm()}
+          >
+            <Search className="h-5 w-5" />
+          </Button>
           <Button variant="ghost" size="icon" asChild aria-label="Styleguide">
             <Link href="/styleguide">
               <Palette className="h-5 w-5" />
@@ -53,6 +77,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <ThemeToggle />
         </div>
       </header>
+
+      {/* The Helm command palette — registered globally, available from any page. */}
+      <CommandPalette />
 
       <div className="flex flex-1">
         {/* Desktop nav rail: The Helm */}
