@@ -8,6 +8,7 @@ import {
   Compass,
   LayoutDashboard,
   ScrollText,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 
@@ -24,6 +25,7 @@ interface HelmLink {
 export const HELM_LINKS: HelmLink[] = [
   { href: "/", label: "Bridge", hint: "Dashboard", icon: LayoutDashboard },
   { href: "/ports", label: "Ports", hint: "Companies", icon: Building2 },
+  { href: "/captains", label: "Captains", hint: "Contacts", icon: Users },
   { href: "/voyages", label: "Voyages", hint: "Deals", icon: Anchor },
   { href: "/chart", label: "Chart", hint: "Deal map", icon: Compass },
   { href: "/log", label: "Log", hint: "Activity", icon: ScrollText },
