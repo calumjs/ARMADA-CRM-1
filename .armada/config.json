@@ -3,7 +3,7 @@
   "dispatch": "shipwright",
   "baseBranch": "main",
   "authors": "",
-  "autoMerge": false,
+  "autoMerge": true,
   "notify": "terminal",
   "bellCommand": "",
   "mergeMethod": "squash",
