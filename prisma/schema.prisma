@@ -128,6 +128,10 @@ model Activity {
   occurredAt DateTime    @default(now())
   /// Tasks can be marked done; notes/calls are inherently complete.
   done      Boolean      @default(false)
+  /// For tasks: when the work is due. Null for non-task activities.
+  dueAt     DateTime?
+  /// For tasks: when it was marked complete. Null while still open.
+  completedAt DateTime?
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
 
@@ -145,4 +149,5 @@ model Activity {
   @@index([portId])
   @@index([captainId])
   @@index([voyageId])
+  @@index([done, dueAt])
 }

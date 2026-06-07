@@ -8,7 +8,6 @@ import {
   CalendarClock,
   Coins,
   Gauge,
-  ScrollText,
   UserRound,
 } from "lucide-react";
 
@@ -22,12 +21,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { prisma } from "@/lib/db";
-import {
-  ACTIVITY_LABEL,
-  formatDate,
-  formatWhen,
-  type ActivityType,
-} from "@/lib/activity";
+import { formatDate, formatWhen, toTimelineActivity } from "@/lib/activity";
+import { ActivityLogSection } from "@/app/log/activity-log-section";
 import { captainName } from "@/lib/ports";
 import {
   formatValue,
@@ -64,7 +59,6 @@ async function loadVoyage(id: string) {
         captain: true,
         activities: {
           orderBy: { occurredAt: "desc" },
-          take: 12,
           include: { captain: true },
         },
         stageHistory: { orderBy: { createdAt: "desc" } },
@@ -259,47 +253,14 @@ export default async function VoyageDetailPage({
       ) : null}
 
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Activity */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl">Activity</CardTitle>
-            <CardDescription>
-              The latest entries logged against this voyage.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {voyage.activities.length === 0 ? (
-              <EmptyState
-                icon={ScrollText}
-                title="Nothing logged yet"
-                description="Calls, emails, and notes against this voyage will show here."
-                className="py-10"
-              />
-            ) : (
-              <ul className="space-y-4">
-                {voyage.activities.map((a) => (
-                  <li key={a.id} className="flex gap-3">
-                    <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary text-brass">
-                      <ScrollText className="h-4 w-4" />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <p className="font-medium">{a.subject}</p>
-                        <Badge variant="outline" className="text-[10px]">
-                          {ACTIVITY_LABEL[a.type as ActivityType]}
-                        </Badge>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        {formatWhen(a.occurredAt)}
-                        {a.captain ? ` · ${captainName(a.captain)}` : ""}
-                      </p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardContent>
-        </Card>
+        {/* Captain's Log — quick-add composer over a reverse-chron timeline */}
+        <ActivityLogSection
+          target="voyage"
+          targetId={voyage.id}
+          title="Captain's Log"
+          description="Notes, calls, and tasks logged against this voyage — newest first."
+          activities={voyage.activities.map(toTimelineActivity)}
+        />
 
         {/* Stage history */}
         <Card>

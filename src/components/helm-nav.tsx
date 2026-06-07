@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   Anchor,
   Building2,
+  ClipboardList,
   Compass,
   LayoutDashboard,
   ScrollText,
@@ -28,6 +29,7 @@ export const HELM_LINKS: HelmLink[] = [
   { href: "/captains", label: "Captains", hint: "Contacts", icon: Users },
   { href: "/voyages", label: "Voyages", hint: "Deals", icon: Anchor },
   { href: "/chart", label: "Chart", hint: "Deal map", icon: Compass },
+  { href: "/orders", label: "Orders", hint: "Tasks", icon: ClipboardList },
   { href: "/log", label: "Log", hint: "Activity", icon: ScrollText },
 ];
 
