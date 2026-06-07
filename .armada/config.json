@@ -1,0 +1,41 @@
+{
+  "triggerLabel": "armada",
+  "dispatch": "shipwright",
+  "baseBranch": "main",
+  "authors": "",
+  "autoMerge": false,
+  "notify": "terminal",
+  "bellCommand": "",
+  "mergeMethod": "squash",
+  "maxReviewRounds": 2,
+  "armadaRepo": "calumjs/ARMADA",
+  "autoArmSelfFixes": false,
+  "cartography": "off",
+  "foghorn": {
+    "flavour": "a gruff, proud nautical harbourmaster",
+    "verbosity": "normal",
+    "gate": "terminal",
+    "provider": "",
+    "voice": ""
+  },
+  "lighthouse": {
+    "enabled": false,
+    "autoArm": false,
+    "intervalHours": 24,
+    "commitsSinceScan": 20,
+    "minIdleToDispatch": true,
+    "budget": {
+      "maxRuntimeSec": 300,
+      "maxPlaywrightSec": 120,
+      "maxIssuesPerRun": 3,
+      "maxFindings": 20
+    }
+  },
+  "commands": {
+    "build": "",
+    "test": "",
+    "lint": "",
+    "format": "",
+    "run": ""
+  }
+}
