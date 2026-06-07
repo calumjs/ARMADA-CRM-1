@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   VOYAGE_STAGES,
   boardSummary,
@@ -10,6 +10,7 @@ import {
   voyageHealth,
   weightedPipeline,
 } from "./voyage";
+import { tidesScore } from "./navigator";
 
 describe("voyage domain helpers", () => {
   it("knows every stage including the full set the schema defines", () => {
@@ -106,6 +107,54 @@ describe("voyageHealth", () => {
     expect(
       voyageHealth({ stage: "CHARTED", expectedClose: null }, now).health,
     ).toBe("healthy");
+  });
+});
+
+// Regression guard for issue #18: the Voyages board hydration mismatch. The
+// board (a client component that is server-rendered then hydrated) reads each
+// card's health + tides from the *same* server-pinned `now`. If either helper
+// reached for `Date.now()`/`new Date()` internally instead of honouring the
+// passed `now`, the server render and the client hydration would diverge across
+// the wall-clock gap between them and React would log a hydration mismatch.
+// These tests assert both helpers are pure in `now`: advancing the wall clock
+// between two calls with the same pinned `now` yields byte-identical output.
+describe("time-relative card readings are deterministic given a pinned now", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  const now = new Date("2026-06-07T08:30:00Z");
+  // A voyage near the overdue/closing thresholds, where a drifting `now` would
+  // most easily flip the result between server render and client hydration.
+  const voyage = {
+    name: "Test voyage",
+    stage: "BOARDING" as const,
+    value: 50000,
+    expectedClose: "2026-06-08",
+  };
+
+  it("voyageHealth ignores wall-clock drift between renders", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-07T08:30:00Z"));
+    const serverRender = voyageHealth(voyage, now);
+
+    // Simulate the gap before the client hydrates — across a day boundary, the
+    // worst case for the day-delta thresholds.
+    vi.setSystemTime(new Date("2026-06-09T23:59:59Z"));
+    const clientHydration = voyageHealth(voyage, now);
+
+    expect(clientHydration).toEqual(serverRender);
+  });
+
+  it("tidesScore ignores wall-clock drift between renders", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-07T08:30:00Z"));
+    const serverRender = tidesScore(voyage, now);
+
+    vi.setSystemTime(new Date("2026-06-09T23:59:59Z"));
+    const clientHydration = tidesScore(voyage, now);
+
+    expect(clientHydration).toEqual(serverRender);
   });
 });
 
