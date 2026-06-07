@@ -55,6 +55,13 @@ async function loadBoard(): Promise<BoardData> {
 export default async function VoyagesPage() {
   const { ready, voyages, ports, captains } = await loadBoard();
 
+  // Pin a single reference instant on the server and pass it to the board so the
+  // time-relative card readings (health + tides) compute identically on the
+  // server render and the client hydration — otherwise each side would call
+  // `new Date()` at a different instant and React would log a hydration
+  // mismatch. The page is `force-dynamic`, so this stays request-fresh.
+  const now = new Date().toISOString();
+
   return (
     <div>
       <PageHeader
@@ -69,7 +76,12 @@ export default async function VoyagesPage() {
           />
         </Card>
       ) : (
-        <VoyageBoard voyages={voyages} ports={ports} captains={captains} />
+        <VoyageBoard
+          voyages={voyages}
+          ports={ports}
+          captains={captains}
+          now={now}
+        />
       )}
     </div>
   );

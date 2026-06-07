@@ -91,14 +91,34 @@ export function VoyageBoard({
   voyages: initial,
   ports,
   captains,
+  now,
 }: {
   voyages: BoardVoyage[];
   ports: VoyageOption[];
   captains: VoyageOption[];
+  /**
+   * A reference instant (ISO string) pinned on the server. Threaded into every
+   * card so the time-relative readings (health + tides) render identically on
+   * the server and on the client during hydration. See `page.tsx`.
+   */
+  now: string;
 }) {
   const router = useRouter();
   const [voyages, setVoyages] = React.useState(initial);
   const [activeId, setActiveId] = React.useState<string | null>(null);
+
+  // Parse the server-pinned instant once; reused for every card's health/tides.
+  const nowDate = React.useMemo(() => new Date(now), [now]);
+
+  // A hydration-stable id for the DnD context. @dnd-kit derives the draggable
+  // handles' `aria-describedby` (`DndDescribedBy-<n>`) from this id via its own
+  // module-level counter when no id is supplied — and that counter is seeded
+  // independently on the server and the client, so the two renders emit
+  // *different* describedby ids and React logs a hydration mismatch. React's
+  // `useId()` is deterministic across the server render and the client
+  // hydration, so feeding it to `DndContext.id` pins the describedby and the
+  // board hydrates cleanly. See issue #18.
+  const dndId = React.useId();
 
   const [createStage, setCreateStage] = React.useState<VoyageStage | null>(
     null,
@@ -170,6 +190,7 @@ export function VoyageBoard({
       </div>
 
       <DndContext
+        id={dndId}
         sensors={sensors}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
@@ -181,6 +202,7 @@ export function VoyageBoard({
               key={stage}
               stage={stage}
               voyages={byStage.get(stage) ?? []}
+              now={nowDate}
               onAdd={() => setCreateStage(stage)}
               onEdit={(v) => setEditing(toDialogData(v))}
               onDelete={(v) => setDeleting(v)}
@@ -190,7 +212,7 @@ export function VoyageBoard({
         </div>
 
         <DragOverlay>
-          {active ? <Card voyage={active} overlay /> : null}
+          {active ? <Card voyage={active} now={nowDate} overlay /> : null}
         </DragOverlay>
       </DndContext>
 
@@ -278,6 +300,7 @@ function Metric({
 function Column({
   stage,
   voyages,
+  now,
   onAdd,
   onEdit,
   onDelete,
@@ -285,6 +308,7 @@ function Column({
 }: {
   stage: VoyageStage;
   voyages: BoardVoyage[];
+  now: Date;
   onAdd: () => void;
   onEdit: (v: BoardVoyage) => void;
   onDelete: (v: BoardVoyage) => void;
@@ -345,6 +369,7 @@ function Column({
             <DraggableCard
               key={v.id}
               voyage={v}
+              now={now}
               onEdit={() => onEdit(v)}
               onDelete={() => onDelete(v)}
               onMove={onMove}
@@ -358,11 +383,13 @@ function Column({
 
 function DraggableCard({
   voyage,
+  now,
   onEdit,
   onDelete,
   onMove,
 }: {
   voyage: BoardVoyage;
+  now: Date;
   onEdit: () => void;
   onDelete: () => void;
   onMove: (id: string, to: VoyageStage) => void;
@@ -382,6 +409,7 @@ function DraggableCard({
     >
       <Card
         voyage={voyage}
+        now={now}
         onEdit={onEdit}
         onDelete={onDelete}
         onMove={onMove}
@@ -393,6 +421,7 @@ function DraggableCard({
 
 function Card({
   voyage,
+  now,
   onEdit,
   onDelete,
   onMove,
@@ -400,14 +429,16 @@ function Card({
   overlay,
 }: {
   voyage: BoardVoyage;
+  /** Server-pinned reference instant — keeps health/tides hydration-stable. */
+  now: Date;
   onEdit?: () => void;
   onDelete?: () => void;
   onMove?: (id: string, to: VoyageStage) => void;
   dragHandleProps?: React.HTMLAttributes<HTMLButtonElement>;
   overlay?: boolean;
 }) {
-  const health = voyageHealth(voyage);
-  const tides = tidesScore(voyage);
+  const health = voyageHealth(voyage, now);
+  const tides = tidesScore(voyage, now);
 
   return (
     <article
