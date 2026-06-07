@@ -8,7 +8,7 @@
   "bellCommand": "",
   "mergeMethod": "squash",
   "maxReviewRounds": 2,
-  "maxConcurrentBuilds": 3,
+  "maxConcurrentBuilds": 5,
   "maxConcurrentReviews": 2,
   "armadaRepo": "calumjs/ARMADA",
   "autoArmSelfFixes": false,
