@@ -21,7 +21,7 @@
     "voice": ""
   },
   "lighthouse": {
-    "enabled": false,
+    "enabled": true,
     "autoArm": false,
     "intervalHours": 24,
     "commitsSinceScan": 20,
