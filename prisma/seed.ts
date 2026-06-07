@@ -218,8 +218,35 @@ async function main() {
     }
   }
 
+  console.log("Seeding voyage stage history…");
+  let eventCount = 0;
+  for (let i = 0; i < voyages.length; i++) {
+    const voyage = voyages[i];
+    // A plausible wake: charted first, then the current stage if it moved on.
+    await prisma.voyageStageEvent.create({
+      data: {
+        voyageId: voyage.id,
+        toStage: "CHARTED",
+        fromStage: null,
+        createdAt: daysFromNow(-(20 + (i % 10))),
+      },
+    });
+    eventCount++;
+    if (voyage.stage !== "CHARTED") {
+      await prisma.voyageStageEvent.create({
+        data: {
+          voyageId: voyage.id,
+          toStage: voyage.stage,
+          fromStage: "CHARTED",
+          createdAt: daysFromNow(-(5 + (i % 5))),
+        },
+      });
+      eventCount++;
+    }
+  }
+
   console.log(
-    `Seeded ${ports.length} ports, ${captains.length} captains, ${voyages.length} voyages, ${activityCount} activities.`,
+    `Seeded ${ports.length} ports, ${captains.length} captains, ${voyages.length} voyages, ${activityCount} activities, ${eventCount} stage events.`,
   );
 }
 

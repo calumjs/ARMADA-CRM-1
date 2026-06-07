@@ -94,11 +94,28 @@ model Voyage {
   captain   Captain? @relation(fields: [captainId], references: [id], onDelete: SetNull)
   captainId String?
 
-  activities Activity[]
+  activities    Activity[]
+  stageHistory  VoyageStageEvent[]
 
   @@index([stage])
   @@index([portId])
   @@index([captainId])
+}
+
+/// A record of a Voyage moving from one stage to another — the ship's wake.
+model VoyageStageEvent {
+  id        String       @id @default(cuid())
+  /// The stage the voyage moved into.
+  toStage   VoyageStage
+  /// The stage it moved from; null for the very first (creation) event.
+  fromStage VoyageStage?
+  createdAt DateTime     @default(now())
+
+  voyage   Voyage @relation(fields: [voyageId], references: [id], onDelete: Cascade)
+  voyageId String
+
+  @@index([voyageId])
+  @@index([createdAt])
 }
 
 /// An Activity — an entry in The Log against a port, captain, or voyage.
